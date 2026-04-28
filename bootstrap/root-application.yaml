@@ -1,0 +1,25 @@
+# Applied once after ArgoCD is installed. After this, ArgoCD owns argocd-apps
+# which in turn owns every other Application defined under helm/argocd-apps/templates/.
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: argocd-apps
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/Hylkw213/Aks.git
+    targetRevision: HEAD
+    path: helm/argocd-apps
+    helm:
+      valueFiles:
+        - values.yaml
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: argocd
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
